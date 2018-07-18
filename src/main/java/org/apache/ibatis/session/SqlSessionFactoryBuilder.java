@@ -72,21 +72,23 @@ public class SqlSessionFactoryBuilder {
     return build(inputStream, null, properties);
   }
 
-  public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
+public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
+  try {
+    // 1. 创建XMLConfigBuilder对象解析XML配置
+    XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
+    // 2. 将XML配置解析成Configuration对象，通过Configuration对象创建SqlSessionFactory
+    return build(parser.parse());
+  } catch (Exception e) {
+    throw ExceptionFactory.wrapException("Error building SqlSession.", e);
+  } finally {
+    ErrorContext.instance().reset();
     try {
-      XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
-      return build(parser.parse());
-    } catch (Exception e) {
-      throw ExceptionFactory.wrapException("Error building SqlSession.", e);
-    } finally {
-      ErrorContext.instance().reset();
-      try {
-        inputStream.close();
-      } catch (IOException e) {
-        // Intentionally ignore. Prefer previous error.
-      }
+      inputStream.close();
+    } catch (IOException e) {
+      // Intentionally ignore. Prefer previous error.
     }
   }
+}
     
   public SqlSessionFactory build(Configuration config) {
     return new DefaultSqlSessionFactory(config);

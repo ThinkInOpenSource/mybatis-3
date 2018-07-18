@@ -9,4 +9,6 @@ public interface PersonDao {
 
     List<Person> selectAll();
 
+    Person selectById(int id);
+
 }

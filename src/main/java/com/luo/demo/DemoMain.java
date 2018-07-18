@@ -21,7 +21,7 @@ public class DemoMain {
         SqlSession session = sqlSessionFactory.openSession();
 
         PersonDao personDao = session.getMapper(PersonDao.class);
-        System.out.println(personDao.selectAll());
+        System.out.println(personDao.selectById(1));
     }
 
 }
