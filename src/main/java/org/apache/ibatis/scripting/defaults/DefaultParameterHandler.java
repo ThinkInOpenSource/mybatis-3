@@ -63,6 +63,7 @@ public class DefaultParameterHandler implements ParameterHandler {
     ErrorContext.instance().activity("setting parameters").object(mappedStatement.getParameterMap().getId());
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
     if (parameterMappings != null) {
+      // 遍历获取并设置入参值，parameterMappings按照sql中的入参顺序存放各个入参值
       for (int i = 0; i < parameterMappings.size(); i++) {
         ParameterMapping parameterMapping = parameterMappings.get(i);
         if (parameterMapping.getMode() != ParameterMode.OUT) {
@@ -75,6 +76,7 @@ public class DefaultParameterHandler implements ParameterHandler {
           } else if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
             value = parameterObject;
           } else {
+            // <propertyName, value> parameterObject保存了各个入参名和入参值
             MetaObject metaObject = configuration.newMetaObject(parameterObject);
             value = metaObject.getValue(propertyName);
           }
@@ -84,6 +86,7 @@ public class DefaultParameterHandler implements ParameterHandler {
             jdbcType = configuration.getJdbcTypeForNull();
           }
           try {
+            // 往PreparedStatement设置参数值
             typeHandler.setParameter(ps, i + 1, value, jdbcType);
           } catch (TypeException e) {
             throw new TypeException("Could not set parameters for mapping: " + parameterMapping + ". Cause: " + e, e);

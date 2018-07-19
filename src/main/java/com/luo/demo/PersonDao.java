@@ -1,5 +1,7 @@
 package com.luo.demo;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 /**
@@ -9,6 +11,6 @@ public interface PersonDao {
 
     List<Person> selectAll();
 
-    Person selectById(int id);
+    Person selectById(@Param("id") int id);
 
 }

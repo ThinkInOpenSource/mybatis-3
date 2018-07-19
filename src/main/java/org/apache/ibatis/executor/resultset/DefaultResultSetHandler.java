@@ -181,6 +181,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   public List<Object> handleResultSets(Statement stmt) throws SQLException {
     ErrorContext.instance().activity("handling results").object(mappedStatement.getId());
 
+    // 存放返回结果
     final List<Object> multipleResults = new ArrayList<>();
 
     int resultSetCount = 0;
@@ -190,6 +191,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     int resultMapCount = resultMaps.size();
     validateResultMapsCount(rsw, resultMapCount);
     while (rsw != null && resultMapCount > resultSetCount) {
+      // resultMap 返回结果数据类型信息
       ResultMap resultMap = resultMaps.get(resultSetCount);
       handleResultSet(rsw, resultMap, multipleResults, null);
       rsw = getNextResultSet(stmt);
@@ -298,6 +300,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
       } else {
         if (resultHandler == null) {
           DefaultResultHandler defaultResultHandler = new DefaultResultHandler(objectFactory);
+          // 处理返回结果，生成对应的类对象
           handleRowValues(rsw, resultMap, defaultResultHandler, rowBounds, null);
           multipleResults.add(defaultResultHandler.getResultList());
         } else {
@@ -350,6 +353,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     skipRows(rsw.getResultSet(), rowBounds);
     while (shouldProcessMoreRows(resultContext, rowBounds) && rsw.getResultSet().next()) {
       ResultMap discriminatedResultMap = resolveDiscriminatedResultMap(rsw.getResultSet(), resultMap, null);
+      // 返回结果和类对象映射，使用反射打通二者之间映射关系
       Object rowValue = getRowValue(rsw, discriminatedResultMap);
       storeObject(resultHandler, resultContext, rowValue, parentMapping, rsw.getResultSet());
     }
@@ -391,11 +395,14 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 
   private Object getRowValue(ResultSetWrapper rsw, ResultMap resultMap) throws SQLException {
     final ResultLoaderMap lazyLoader = new ResultLoaderMap();
+    // createResultObject为新创建的对象，返回结果对象（也就是数据表对应的类）
     Object rowValue = createResultObject(rsw, resultMap, lazyLoader, null);
     if (rowValue != null && !hasTypeHandlerForResultObject(rsw, resultMap.getType())) {
+      // metaObject为rowValue的封装类
       final MetaObject metaObject = configuration.newMetaObject(rowValue);
       boolean foundValues = this.useConstructorMappings;
       if (shouldApplyAutomaticMappings(resultMap, false)) {
+        // 这里把数据填充进去，metaObject中包含了resultObject信息
         foundValues = applyAutomaticMappings(rsw, resultMap, metaObject, null) || foundValues;
       }
       foundValues = applyPropertyMappings(rsw, resultMap, metaObject, lazyLoader, null) || foundValues;
@@ -515,12 +522,13 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     boolean foundValues = false;
     if (!autoMapping.isEmpty()) {
       for (UnMappedColumnAutoMapping mapping : autoMapping) {
+        // typeHandler类型转换类
         final Object value = mapping.typeHandler.getResult(rsw.getResultSet(), mapping.column);
         if (value != null) {
           foundValues = true;
         }
         if (value != null || (configuration.isCallSettersOnNulls() && !mapping.primitive)) {
-          // gcode issue #377, call setter on nulls (value is not 'found')
+          // 使用反射设置对应属性值
           metaObject.setValue(mapping.property, value);
         }
       }

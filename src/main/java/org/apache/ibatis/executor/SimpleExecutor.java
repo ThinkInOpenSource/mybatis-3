@@ -58,6 +58,7 @@ public class SimpleExecutor extends BaseExecutor {
     Statement stmt = null;
     try {
       Configuration configuration = ms.getConfiguration();
+      // 创建StatementHandler，StatementHandler内部已经包含了MappedStatement对应mapper节点的信息，比如入参信息等
       StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
       // 子流程1：SQL查询参数的设置
       stmt = prepareStatement(handler, ms.getStatementLog());
@@ -83,6 +84,7 @@ public class SimpleExecutor extends BaseExecutor {
 
   private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
     Statement stmt;
+    // 获取connection并设置其属性
     Connection connection = getConnection(statementLog);
     stmt = handler.prepare(connection, transaction.getTimeout());
     handler.parameterize(stmt);
