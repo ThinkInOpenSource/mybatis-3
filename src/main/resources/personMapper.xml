@@ -8,7 +8,10 @@
     </select>
 
     <select id="selectById" resultType="com.luo.demo.Person">
-        select * from person where id = #{id}
+        select * from person
+        <if test="id > 0">
+            where id = #{id}
+        </if>
     </select>
 
 </mapper>

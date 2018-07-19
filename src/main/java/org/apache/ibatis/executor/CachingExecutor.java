@@ -78,7 +78,7 @@ public class CachingExecutor implements Executor {
 
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
-    // 获取绑定的sql命令，比如boundSql对应的sql是 "SELECT * FROM xxx"
+    // 获取绑定的sql命令，比如boundSql对应的sql是 "SELECT * FROM xxx"，可能涉及动态sql解析
     BoundSql boundSql = ms.getBoundSql(parameterObject);
     CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);
     return query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);

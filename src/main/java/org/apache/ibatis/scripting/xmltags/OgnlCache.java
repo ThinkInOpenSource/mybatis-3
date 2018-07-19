@@ -41,6 +41,7 @@ public final class OgnlCache {
 
   public static Object getValue(String expression, Object root) {
     try {
+      // 调用ognl表达式引擎计算结果
       Map<Object, OgnlClassResolver> context = Ognl.createDefaultContext(root, new OgnlClassResolver());
       return Ognl.getValue(parseExpression(expression), context, root);
     } catch (OgnlException e) {
